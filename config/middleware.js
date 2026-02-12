@@ -21,7 +21,7 @@ const setupMiddleware = (app) => {
             cookie: {
                 httpOnly: true,
                 secure: false, // Set to true in production with HTTPS
-                sameSite: "lax",
+                sameSite: "none",
                 maxAge: 30 * 1000 // 30 seconds
             }
         })
