@@ -5,12 +5,12 @@ const transporter = nodemailer.createTransport({
   port: 465,
   secure: true,
   auth: {
-    user: "tm1492004@gmail.com",
-    pass: "jmnbukgsqrcbgepa"
+    user: process.env.EMAIL,
+    pass: process.env.PASS
   }
 });
 
-const sendMail = async (name, to = "thirumu1492004@gmail.com") => {
+const sendMail = async (name, to = process.env.SEND_EMAIL) => {
   try {
     const info = await transporter.sendMail({
       from: '"hii" <tm1492004@gmail.com>',
