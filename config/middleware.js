@@ -5,7 +5,7 @@ const session = require("express-session");
 
 const setupMiddleware = (app) => {
     app.use(cors({
-        origin: ["http://localhost:5173", "http://localhost:8081"],
+        origin: [process.env.FRONT_URL],
         credentials: true,
     }));
 
