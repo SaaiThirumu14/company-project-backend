@@ -1,0 +1,66 @@
+# Node modules
+node_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Build output
+dist/
+build/
+
+# Coverage directory (testing)
+coverage/
+
+# Dependency directories
+jspm_packages/
+
+# Optional npm cache
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# JetBrains IDE
+.idea/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Uploads (if you store user uploads locally)
+uploads/
+public/uploads/
+
+# SQLite database (if using locally)
+*.sqlite
+*.sqlite3
+*.db
+
+# dotenv vault (if used)
+.env.vault
+
+# PM2
+.pm2/
