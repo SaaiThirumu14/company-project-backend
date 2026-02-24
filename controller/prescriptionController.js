@@ -36,7 +36,8 @@ exports.createPrescription = async (req, res) => {
 // Dispense Prescription (Pharmacy)
 exports.dispensePrescription = async (req, res) => {
     try {
-                const prescription = await Prescription.findById(prescriptionId).populate('medicines.medicine');
+        const { prescriptionId } = req.params;
+        const prescription = await Prescription.findById(prescriptionId).populate('medicines.medicine');
 
         if (!prescription) return res.status(404).json({ message: "Prescription not found" });
         if (prescription.status === 'dispensed') return res.status(400).json({ message: "Already dispensed" });
@@ -105,6 +106,24 @@ exports.getPatientPrescriptions = async (req, res) => {
             .sort({ createdAt: -1 });
 
         res.json(prescriptions);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// Get Single Prescription
+exports.getPrescriptionById = async (req, res) => {
+    try {
+        const prescription = await Prescription.findById(req.params.id)
+            .populate('doctor', 'username name')
+            .populate('patient')
+            .populate('medicines.medicine')
+            .populate('dispensedBy', 'username name');
+
+        if (!prescription) {
+            return res.status(404).json({ message: "Prescription not found" });
+        }
+        res.json(prescription);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

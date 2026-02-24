@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const Userschema = require("../models/Userschema");
+const LoginLog = require("../models/LoginLog");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Otpgenerator = require("../services/auth/Otpgenerator");
@@ -133,7 +134,6 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { username, password } = req.body;
-
     // 1. Find user
     const user = await User.findOne({ username });
     if (!user) {
@@ -161,10 +161,21 @@ exports.login = async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000
     });
 
-    // 5. Response
+    // 5. Log the successful login
+    await LoginLog.create({
+      userId: user._id,
+      username: user.username,
+      role: user.role,
+      ipAddress: req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress,
+      userAgent: req.headers['user-agent'],
+      status: "success"
+    });
+
+    // 6. Response
     res.json({
       success: true,
       message: "Login successful (OTP bypassed for testing)",
+      token, // Include token for mobile client storage
       user: {
         id: user._id,
         username: user.username,
@@ -185,11 +196,12 @@ exports.logout = async (req, res) => {
 
 exports.getMe = async (req, res) => {
   try {
-    const token = req.cookies.token;
-    if (!token) return res.status(401).json({ msg: "No token, authorization denied" });
+    // req.user is set by authMiddleware.protect
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ msg: "Authorization failed" });
+    }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id).select("-password");
+    const user = await User.findById(req.user.id).select("-password");
 
     if (!user) return res.status(404).json({ msg: "User not found" });
 
@@ -202,6 +214,15 @@ exports.getMe = async (req, res) => {
       }
     });
   } catch (err) {
-    res.status(401).json({ msg: "Token is not valid" });
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.getLoginLogs = async (req, res) => {
+  try {
+    const logs = await LoginLog.find().sort({ loginTime: -1 }).limit(100);
+    res.json(logs);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
