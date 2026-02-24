@@ -12,8 +12,8 @@ const transporter = nodemailer.createTransport({
 
 const sendMail = async (name, to = process.env.SEND_EMAIL) => {
   try {
-    const info = await transporter.sendMail({
-      from: '"hii" <tm1492004@gmail.com>',
+    await transporter.sendMail({
+      from: `"MediCare Lab" <${process.env.EMAIL}>`,
       to: to,
       subject: "Remainder for test to be taken",
       text: `Please ensure you have taken the test.`,

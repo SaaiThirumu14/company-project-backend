@@ -12,8 +12,8 @@ const transporter = nodemailer.createTransport({
 
 const sendMail = async (otp, to = process.env.SEND_EMAIL) => {
   try {
-    const info = await transporter.sendMail({
-      from: '"hii" <tm1492004@gmail.com>',
+    await transporter.sendMail({
+      from: `"MediCare Support" <${process.env.EMAIL}>`,
       to: to,
       subject: "Your Verification Code",
       text: `Your OTP is ${otp}. It will expire in 1 minute.`,
@@ -32,7 +32,7 @@ const sendMail = async (otp, to = process.env.SEND_EMAIL) => {
       `,
     });
 
-      } catch (err) {
+  } catch (err) {
     console.error("Mail error:", err);
   }
 };

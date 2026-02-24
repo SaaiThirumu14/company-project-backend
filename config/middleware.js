@@ -41,8 +41,8 @@ const setupMiddleware = (app) => {
             saveUninitialized: false,
             cookie: {
                 httpOnly: true,
-                secure: false, // Set to true in production with HTTPS
-                sameSite: "none",
+                secure: process.env.NODE_ENV === "production",
+                sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
                 maxAge: 30 * 1000 // 30 seconds
             }
         })

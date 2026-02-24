@@ -1,5 +1,6 @@
 const express = require("express");
 const http = require("http");
+const path = require("path");
 const dotenv = require("dotenv");
 const connectDB = require("./config/data");
 const setupMiddleware = require("./config/middleware");
@@ -21,7 +22,6 @@ const io = initSocket(server);
 app.set("socketio", io);
 
 // Start Jobs
-// Start Jobs
 const startLabCron = require("./services/lab/cron");
 startLabCron();
 
@@ -32,9 +32,18 @@ setupMiddleware(app);
 // API Routes
 app.use("/api", apiRoutes);
 
-// General Health Check
-app.get("/", (req, res) => {
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, "../client/dist")));
+
+// General Health Check (API)
+app.get("/health", (req, res) => {
   res.send("MediCare API is running...");
+});
+
+// The "catch-all" handler: for any request that doesn't
+// match one above, send back React's index.html file.
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/dist", "index.html"));
 });
 
 // Start Server

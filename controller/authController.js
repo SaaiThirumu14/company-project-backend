@@ -156,8 +156,8 @@ exports.login = async (req, res) => {
     // 4. Set cookie
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false,          // set false if testing on localhost without HTTPS
-      sameSite: "strict",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 24 * 60 * 60 * 1000
     });
 
