@@ -20,8 +20,25 @@ const prescriptionSchema = new mongoose.Schema(
                     required: true,
                 },
                 dosagePattern: {
-                    type: String, // ex: "1-0-1"
+                    type: String, // Keep for backward compatibility/quick display
                     required: true,
+                },
+                morning: {
+                    type: Number,
+                    default: 0
+                },
+                afternoon: {
+                    type: Number,
+                    default: 0
+                },
+                evening: {
+                    type: Number,
+                    default: 0
+                },
+                timing: {
+                    type: String,
+                    enum: ["before", "after"],
+                    default: "after"
                 },
                 days: {
                     type: Number,

@@ -42,8 +42,13 @@ app.get("/health", (req, res) => {
 
 // The "catch-all" handler: for any request that doesn't
 // match one above, send back React's index.html file.
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../client/dist", "index.html"));
+app.use((req, res) => {
+  const indexFile = path.join(__dirname, "../client/dist", "index.html");
+  res.sendFile(indexFile, (err) => {
+    if (err) {
+      res.status(404).json({ message: "Frontend build missing. Run npm run build in /client" });
+    }
+  });
 });
 
 // Start Server

@@ -10,9 +10,9 @@ const {
 } = require("../controller/patientController");
 
 router.post("/", protect, restrictTo("front_desk", "super_admin"), createPatient);
-router.put("/:id", protect, restrictTo("front_desk", "super_admin"), updatePatient);
-router.get("/:id", protect, getPatient);
-router.delete("/:id", protect, restrictTo("front_desk", "super_admin"), deletePatient);
 router.get("/", protect, restrictTo("front_desk", "doctor", "admin", "super_admin", "pharmacy"), getAllPatients);
+router.get("/:id", protect, restrictTo("front_desk", "doctor", "admin", "super_admin", "pharmacy"), getPatient);
+router.put("/:id", protect, restrictTo("front_desk", "super_admin"), updatePatient);
+router.delete("/:id", protect, restrictTo("front_desk", "super_admin"), deletePatient);
 
 module.exports = router;

@@ -1,117 +1,42 @@
-🔍 Option-by-option explanation
-1️⃣ "auth_token" (cookie name)
-"auth_token"
+# MediCare Server API
 
+The backend for the MediCare platform, built on a modern **Node.js** architecture utilizing **Express 5.x**.
 
-Name of the cookie
+## 🛠 Tech Stack
+- **Framework**: Express 5.x (Modern routing, strict path-to-regexp parsing)
+- **Runtime**: Node.js 22.x
+- **Database**: MongoDB via Mongoose
+- **Real-time**: Socket.io
+- **Mailing**: Nodemailer
+- **Environment**: Dotenv for secret management
 
-Browser stores it under this name
+## 📁 Key Directories
+- `/api`: Aggregated API endpoints and route registration.
+- `/config`: Database connections and middleware configurations.
+- `/controller`: Business logic for various modules (Medicine, Patient, Wellness, Cafeteria).
+- `/models`: Mongoose schemas for healthcare and engagement data.
+- `/routes`: Specific route definitions.
+- `/services`: Core logic services including Blockchain anchoring, AI recommendations, and Email notifications.
 
-Backend reads it later (req.cookies.auth_token)
+## 🚀 Recent Updates
+- **Express 5 Migration**: Updated all routes to comply with Express 5 path parsing (replaced old `*` wildcards with compatible catch-all patterns).
+- **Module Integration**: Unified PromoTrack (Healthcare), Wellness Tracker (AI Mood logs), and Food Ordering controllers.
+- **Enhanced Security**: Integrated IP log tracking and cookie-based JWT authentication.
 
-2️⃣ authToken (value)
-authToken
+## 🔐 Authentication & Security Notes
+The server uses **HttpOnly Cookies** for JWT storage to prevent XSS attacks.
 
+### Cookie Configuration Summary:
+1. **auth_token**: The cookie name used to store the JWT.
+2. **httpOnly: true**: Crucial for security; prevents JavaScript from accessing the cookie.
+3. **secure: false**: (Current Dev setting) Set to `true` in production for HTTPS.
+4. **sameSite: "lax"**: Balance between security (CSRF protection) and usability.
 
-Your JWT
+## 🏃 Running Locally
+1. Ensure MongoDB is running.
+2. Install dependencies: `npm install`
+3. Run in development mode: `npm run dev`
+4. The server will start on `http://localhost:5000` by default.
 
-Contains user identity (phone, userId, etc.)
-
-Signed by your server
-
-⚠️ Never store OTP here — only auth tokens.
-
-3️⃣ httpOnly: true 🔒 (MOST IMPORTANT)
-httpOnly: true
-
-
-✔ JavaScript cannot access this cookie
-✔ Protects from XSS attacks
-
-❌ This fails:
-
-document.cookie // auth_token NOT visible
-
-
-👉 This is why cookies are safer than localStorage
-
-4️⃣ secure: false 🔐
-secure: false
-
-
-Cookie is sent over HTTP
-
-Used only in development
-
-✅ In production:
-
-secure: true
-
-
-👉 Ensures cookie is sent only over HTTPS
-
-5️⃣ sameSite: "lax" 🛡️
-sameSite: "lax"
-
-
-Controls cross-site request behavior (CSRF protection).
-
-Value	Meaning
-strict	Sent only from same site
-lax	Sent on top-level navigation (recommended)
-none	Cross-site allowed (needs HTTPS)
-
-✅ lax is best for login flows.
-
-6️⃣ maxAge ⏱️
-maxAge: 24 * 60 * 60 * 1000
-
-
-Cookie expires after 24 hours
-
-User stays logged in for 1 day
-
-Browser auto-deletes after expiry
-
-🔁 What happens after this?
-1️⃣ Browser stores cookie
-auth_token=JWT_VALUE; HttpOnly
-
-2️⃣ Every API request sends it automatically
-GET /api/profile
-Cookie: auth_token=JWT_VALUE
-
-3️⃣ Backend verifies token
-jwt.verify(req.cookies.auth_token, SECRET)
-
-4️⃣ User is authenticated 🎉
-🔐 Why this is SAFE (compared to localStorage)
-Storage	XSS Safe	Auto sent	Recommended
-localStorage	❌	❌	NO
-sessionStorage	❌	❌	NO
-HttpOnly cookie	✅	✅	YES
-🚀 Production-ready version
-res.cookie("auth_token", authToken, {
-  httpOnly: true,
-  secure: true,       // HTTPS only
-  sameSite: "lax",
-  maxAge: 24 * 60 * 60 * 1000
-});
-
-🧠 TL;DR
-
-This line securely logs the user in by storing the JWT in a protected browser cookie that JavaScript cannot touch.
-
-If you want, next I can:
-
-Show middleware to read this cookie
-
-Explain logout (cookie clear)
-
-Explain CSRF protection
-
-Compare cookie vs Authorization header
-
-Show Postman testing
-
-Just say 👍
+## 📡 Health Check
+Perform a GET request to `/health` to verify server status.

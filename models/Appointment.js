@@ -17,7 +17,6 @@ const appointmentSchema = new mongoose.Schema(
         doctor: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
-            required: true,
         },
         date: {
             type: Date,
@@ -39,6 +38,14 @@ const appointmentSchema = new mongoose.Schema(
         },
         notes: {
             type: String,
+        },
+        vitals: {
+            temperature: { type: String },
+            bloodPressure: { type: String },
+            pulseRate: { type: String },
+            weight: { type: String },
+            height: { type: String },
+            spo2: { type: String },
         },
     },
     { timestamps: true }

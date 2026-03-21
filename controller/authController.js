@@ -14,6 +14,7 @@ exports.register = async (req, res) => {
       username, // used as name for Userschema if not provided separately
       password,
       role,
+      email,
       dateOfBirth,
       contact,
       qualifications,
@@ -47,6 +48,7 @@ exports.register = async (req, res) => {
       user_id: user._id,
       name: username, // using username as name
       dateOfBirth,
+      email,
       contact: contact || "N/A", // contact is required in schema
       qualifications,
       specializations: specializations || []

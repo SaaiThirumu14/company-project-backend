@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const Prescription = require("../models/Prescription");
 const Medicine = require("../models/Medicine");
 const Patient = require("../models/Patient");
@@ -84,6 +85,7 @@ exports.getPrescriptions = async (req, res) => {
             .populate('doctor', 'username')
             .populate('patient')
             .populate('medicines.medicine')
+            .populate('dispensedBy', 'username')
             .sort({ createdAt: -1 });
 
         res.json(prescriptions);
@@ -96,7 +98,15 @@ exports.getPrescriptions = async (req, res) => {
 exports.getPatientPrescriptions = async (req, res) => {
     try {
         const { id } = req.params;
-        const patient = await Patient.findOne({ _id: id });
+
+        // Search by MongoDB _id or human-readable patientId
+        const patient = await Patient.findOne({
+            $or: [
+                { _id: mongoose.isValidObjectId(id) ? id : new mongoose.Types.ObjectId() },
+                { patientId: id }
+            ]
+        });
+
         if (!patient) return res.status(404).json({ message: "Patient not found" });
 
         const prescriptions = await Prescription.find({ patient: patient._id })
@@ -115,10 +125,10 @@ exports.getPatientPrescriptions = async (req, res) => {
 exports.getPrescriptionById = async (req, res) => {
     try {
         const prescription = await Prescription.findById(req.params.id)
-            .populate('doctor', 'username name')
+            .populate('doctor', 'username')
             .populate('patient')
             .populate('medicines.medicine')
-            .populate('dispensedBy', 'username name');
+            .populate('dispensedBy', 'username');
 
         if (!prescription) {
             return res.status(404).json({ message: "Prescription not found" });

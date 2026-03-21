@@ -7,6 +7,6 @@ router.use(protect);
 
 router.get("/", medicineController.getAllMedicines);
 router.post("/add-stock", restrictTo("pharmacy", "super_admin"), medicineController.addStock);
-router.get("/:id", medicineController.getMedicine);
+router.get("/:id", restrictTo("doctor", "pharmacy", "admin", "super_admin"), medicineController.getMedicine);
 
 module.exports = router;

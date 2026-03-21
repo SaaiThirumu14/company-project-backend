@@ -1,9 +1,12 @@
 const { Server } = require("socket.io");
-const cors = require("cors");
 const initSocket = (server) => {
     const io = new Server(server, {
         cors: {
-            origin: [process.env.FRONT_URL],
+            origin: [
+                "http://localhost:5173",
+                "http://localhost:8081",
+                process.env.FRONT_URL
+            ].filter(Boolean),
             methods: ["GET", "POST"],
             credentials: true
         }

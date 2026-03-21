@@ -26,7 +26,10 @@ const userSchema = new mongoose.Schema(
     qualifications: {
       type: String
     },
-
+    email:{
+      type:String,
+      required:true
+    },
     // Multiple specializations (checkbox)
     specializations: {
       type: [String],

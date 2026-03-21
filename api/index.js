@@ -10,6 +10,8 @@ const consultationRoutes = require("../routes/consultationRoutes");
 const labRoutes = require("../routes/LabRoutes");
 const appointmentRoutes = require("../routes/appointmentRoutes");
 const doctorRoutes = require("../routes/doctorRoutes");
+const n8nRoutes = require("../routes/n8nRoutes");
+const onlineRoutes = require("../routes/onlineRoutes");
 
 // Register all routes
 router.use("/auth", authRoutes);
@@ -21,6 +23,8 @@ router.use("/consultations", consultationRoutes);
 router.use("/labs", labRoutes);
 router.use("/appointments", appointmentRoutes);
 router.use("/doctors", doctorRoutes);
+router.use("/n8n", n8nRoutes);
+router.use("/online", onlineRoutes);
 
 
 module.exports = router;
