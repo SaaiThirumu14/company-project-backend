@@ -82,12 +82,38 @@ exports.createAppointment = async (req, res) => {
 // GET ALL
 exports.getAllAppointments = async (req, res) => {
     try {
+        const { role, id: userId } = req.user;
+        let query = {};
+        
+        if (role === "doctor") {
+            query.doctor = userId;
+        }
+
         // Populate doctor details (name, specialization)
-        const appointments = await Appointment.find().populate("doctor", "username role").populate("patient").sort({ date: 1, time: 1 });
+        const appointments = await Appointment.find(query)
+            .populate("doctor", "username role")
+            .populate("patient")
+            .sort({ date: 1, time: 1 });
         res.json(appointments);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
+};
+
+// GET ME (Patient self appointments)
+exports.getMeAppointments = async (req, res) => {
+  try {
+    const Patient = require("../models/Patient");
+    const patientDoc = await Patient.findOne({ userId: req.user.id });
+    if (!patientDoc) return res.status(404).json({ message: "Patient profile not found" });
+
+    const appointments = await Appointment.find({ patient: patientDoc._id })
+      .populate("doctor", "username role")
+      .sort({ date: -1 });
+    res.json(appointments);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 // GET ONE
@@ -137,6 +163,19 @@ exports.deleteAppointment = async (req, res) => {
     try {
         await Appointment.findByIdAndDelete(req.params.id);
         res.json({ message: "Appointment deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// ANALYZE VITALS (Gemini Integration)
+exports.analyzeVitals = async (req, res) => {
+    try {
+        const { vitals } = req.body;
+        const { analyzeVitals: analyzeVitalsService } = require("../services/geminiService");
+        
+        const analysis = await analyzeVitalsService(vitals);
+        res.json({ analysis });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

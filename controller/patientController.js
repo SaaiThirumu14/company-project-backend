@@ -13,6 +13,17 @@ exports.createPatient = async (req, res) => {
   }
 };
 
+// GET ME (Patient self data)
+exports.getMePatient = async (req, res) => {
+  try {
+    const patient = await Patient.findOne({ userId: req.user.id });
+    if (!patient) return res.status(404).json({ message: "Patient profile not found" });
+    res.json(patient);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // UPDATE
 exports.updatePatient = async (req, res) => {
   const patient = await Patient.findByIdAndUpdate(
@@ -25,18 +36,54 @@ exports.updatePatient = async (req, res) => {
 
 // FETCH ONE
 exports.getPatient = async (req, res) => {
-  const patient = await Patient.findById(req.params.id);
-  res.json(patient);
+  try {
+    const patientId = req.params.id;
+    const { role } = req.user;
+
+    const patient = await Patient.findById(patientId);
+    if (!patient) return res.status(404).json({ message: "Patient not found" });
+
+    // Role filtering for data visibility - maintain existing admin/pharmacy limited view
+    if (role === "super_admin" || role === "admin" || role === "pharmacy") {
+      return res.json({
+        _id: patient._id,
+        name: patient.name,
+        patientId: patient.patientId
+      });
+    }
+
+    // Doctors and Front Desk get full access
+    res.json(patient);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 // DELETE
 exports.deletePatient = async (req, res) => {
-  await Patient.findByIdAndDelete(req.params.id);
-  res.json({ message: "Patient deleted successfully" });
+  try {
+    await Patient.findByIdAndDelete(req.params.id);
+    res.json({ message: "Patient deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 // FETCH ALL
 exports.getAllPatients = async (req, res) => {
-  const patients = await Patient.find();
-  res.json(patients);
+  try {
+    const { role } = req.user;
+    let patients;
+
+    if (role === "super_admin" || role === "admin" || role === "pharmacy") {
+      patients = await Patient.find().select("name patientId");
+    } else {
+      // Doctors and Front Desk see all patients (standard clinical access)
+      patients = await Patient.find();
+    }
+
+    res.json(patients);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };

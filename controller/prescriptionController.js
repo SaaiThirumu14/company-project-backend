@@ -78,16 +78,23 @@ exports.dispensePrescription = async (req, res) => {
 // Get All Prescriptions (Pharmacy)
 exports.getPrescriptions = async (req, res) => {
     try {
+        const { role } = req.user;
         const { status } = req.query;
         const query = status ? { status } : {};
 
-        const prescriptions = await Prescription.find(query)
+        let prescriptionsQuery = Prescription.find(query)
             .populate('doctor', 'username')
-            .populate('patient')
             .populate('medicines.medicine')
             .populate('dispensedBy', 'username')
             .sort({ createdAt: -1 });
 
+        if (role === 'pharmacy') {
+            prescriptionsQuery = prescriptionsQuery.select('-diagnosis -notes').populate('patient', 'name patientId');
+        } else {
+            prescriptionsQuery = prescriptionsQuery.populate('patient');
+        }
+
+        const prescriptions = await prescriptionsQuery;
         res.json(prescriptions);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -98,6 +105,7 @@ exports.getPrescriptions = async (req, res) => {
 exports.getPatientPrescriptions = async (req, res) => {
     try {
         const { id } = req.params;
+        const { role } = req.user;
 
         // Search by MongoDB _id or human-readable patientId
         const patient = await Patient.findOne({
@@ -109,12 +117,18 @@ exports.getPatientPrescriptions = async (req, res) => {
 
         if (!patient) return res.status(404).json({ message: "Patient not found" });
 
-        const prescriptions = await Prescription.find({ patient: patient._id })
+        let prescriptionsQuery = Prescription.find({ patient: patient._id })
             .populate('doctor', 'username')
-            .populate('patient', 'name')
             .populate('medicines.medicine')
             .sort({ createdAt: -1 });
 
+        if (role === 'pharmacy') {
+            prescriptionsQuery = prescriptionsQuery.select('-diagnosis -notes').populate('patient', 'name patientId');
+        } else {
+            prescriptionsQuery = prescriptionsQuery.populate('patient');
+        }
+
+        const prescriptions = await prescriptionsQuery;
         res.json(prescriptions);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -124,11 +138,19 @@ exports.getPatientPrescriptions = async (req, res) => {
 // Get Single Prescription
 exports.getPrescriptionById = async (req, res) => {
     try {
-        const prescription = await Prescription.findById(req.params.id)
+        const { role } = req.user;
+        let prescriptionQuery = Prescription.findById(req.params.id)
             .populate('doctor', 'username')
-            .populate('patient')
             .populate('medicines.medicine')
             .populate('dispensedBy', 'username');
+
+        if (role === 'pharmacy') {
+            prescriptionQuery = prescriptionQuery.select('-diagnosis -notes').populate('patient', 'name patientId');
+        } else {
+            prescriptionQuery = prescriptionQuery.populate('patient');
+        }
+
+        const prescription = await prescriptionQuery;
 
         if (!prescription) {
             return res.status(404).json({ message: "Prescription not found" });
